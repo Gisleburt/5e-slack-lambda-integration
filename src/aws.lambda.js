@@ -43,9 +43,7 @@ Follow these steps to complete the configuration of your command API endpoint
 const AWS = require('aws-sdk');
 const qs = require('querystring');
 
-const kmsEncryptedToken = '${KMS_ENCRYPTED_TOKEN}';
-let token;
-
+const token = '===TOKEN===';
 
 function processEvent(event, callback) {
     const params = qs.parse(event.body);
@@ -74,21 +72,10 @@ exports.handler = (event, context, callback) => {
     });
 
     if (token) {
-        // Container reuse, simply process the event with the key in memory
         processEvent(event, done);
-    } else if (kmsEncryptedToken && kmsEncryptedToken !== '${KMS_ENCRYPTED_TOKEN}') {
-        const cipherText = { CiphertextBlob: new Buffer(kmsEncryptedToken, 'base64') };
-        const kms = new AWS.KMS();
-        kms.decrypt(cipherText, (err, data) => {
-            if (err) {
-                console.log('Decrypt error:', err);
-                return done(err);
-            }
-            token = data.Plaintext.toString('ascii');
-            processEvent(event, done);
-        });
-    } else {
-        done('Token has not been set.');
+        return;
     }
+
+    done('Token has not been set.');
 };
 

@@ -4,7 +4,7 @@
   "description": "An integration for slack to help with 5th Edition DnD",
   "scripts": {
     "test": "test",
-    "build": "mkdir -p dist && env $(cat settings | xargs) envsubst <src/aws.lambda.js >dist/aws.lambda.js"
+    "build": "mkdir -p dist && env $(cat settings | grep -v ^#| xargs) bash -c 'sed -e \"s/===TOKEN===/$TOKEN/g\" <src/aws.lambda.js >dist/aws.lambda.js'"
   },
   "author": "Daniel Mason <daniel@danielmason.com>",
   "license": "MIT"
