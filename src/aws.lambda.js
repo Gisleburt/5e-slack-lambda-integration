@@ -43,7 +43,7 @@ Follow these steps to complete the configuration of your command API endpoint
 const AWS = require('aws-sdk');
 const qs = require('querystring');
 
-const kmsEncryptedToken = '<kmsEncryptedToken>';
+const kmsEncryptedToken = '${KMS_ENCRYPTED_TOKEN}';
 let token;
 
 
@@ -76,7 +76,7 @@ exports.handler = (event, context, callback) => {
     if (token) {
         // Container reuse, simply process the event with the key in memory
         processEvent(event, done);
-    } else if (kmsEncryptedToken && kmsEncryptedToken !== '<kmsEncryptedToken>') {
+    } else if (kmsEncryptedToken && kmsEncryptedToken !== '${KMS_ENCRYPTED_TOKEN}') {
         const cipherText = { CiphertextBlob: new Buffer(kmsEncryptedToken, 'base64') };
         const kms = new AWS.KMS();
         kms.decrypt(cipherText, (err, data) => {

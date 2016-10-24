@@ -1,0 +1,11 @@
+{
+  "name": "5e-slack-integration",
+  "version": "0.0.0",
+  "description": "An integration for slack to help with 5th Edition DnD",
+  "scripts": {
+    "test": "test",
+    "build": "mkdir -p dist && env $(cat settings | xargs) envsubst <src/aws.lambda.js >dist/aws.lambda.js"
+  },
+  "author": "Daniel Mason <daniel@danielmason.com>",
+  "license": "MIT"
+}
