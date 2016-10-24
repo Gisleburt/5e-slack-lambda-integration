@@ -7,22 +7,27 @@ const token = '===TOKEN===';
 const slashCommand = '/5e';
 
 const commands = {
+    /**
+     * Auto generated help
+     */
     help: {
         description: 'Lists available commands',
         call(additionalData, params) {
             return {
                 response_type: 'in_channel',
                 text: 'The following commands are currently available',
-                attachments: {
-                    text: Object.keys(commands).reduce((data, current) => (
-                      `${data}\\n${slashCommand} ${current} - ${commands[current].description}`
-                    ), '')
-                },
+                attachments: Object.keys(commands).map((key) => ({
+                    text: `\`${slashCommand} ${key}\` - ${commands[key].description}`,
+                    mrkdwn_in: ["text"],
+                })),
             };
         },
     },
+    /**
+     * Dice rolling functionality
+     */
     roll: {
-        description: `Roll a dice. Eg: ${slashCommand} roll d20`,
+        description: `Roll a dice. Eg: \`${slashCommand} roll 10d6\`, (rolls a d20 by default)`,
         call(additionalData, params) {
             return {
                 response_type: 'in_channel',
@@ -32,6 +37,12 @@ const commands = {
     },
 };
 
+/**
+ * Handle an incoming event
+ * @param event
+ * @param callback
+ * @returns {*}
+ */
 function processEvent(event, callback) {
     const params = qs.parse(event.body);
     const requestToken = params.token;
@@ -49,13 +60,18 @@ function processEvent(event, callback) {
     const desiredCommand = getFirstWord(commandText);
 
     if(desiredCommand && commands.hasOwnProperty(desiredCommand) && commands[desiredCommand].hasOwnProperty('call')) {
-        callback(null, commands[desiredCommand].call());
+        callback(null, commands[desiredCommand].call(removeFirstWord(commandText), params));
         return;
     }
 
     callback(`I don't understand the command "${commandText}". Try "${slashCommand} help"`);
 }
 
+/**
+ * Get the first word in a string
+ * @param string
+ * @returns {string}
+ */
 function getFirstWord(string) {
     if (!string) {
         return '';
@@ -63,13 +79,24 @@ function getFirstWord(string) {
     return string.split(' ')[0];
 }
 
+/**
+ * Remove the first word from a string
+ * @param string
+ * @returns {string}
+ */
 function removeFirstWord(string) {
-    if (!string) {
+    if (!string || string.indexOf(" ") === false) {
         return '';
     }
     return string.substr(string.indexOf(" ") + 1);
 }
 
+/**
+ * Handle errors or move on to processEvent
+ * @param event
+ * @param context
+ * @param callback
+ */
 exports.handler = (event, context, callback) => {
     const done = (err, res) => callback(null, {
         statusCode: err ? '400' : '200',
